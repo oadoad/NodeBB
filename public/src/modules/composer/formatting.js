@@ -71,7 +71,7 @@ define('composer/formatting', ['composer/controls', 'composer/preview'], functio
 	formatting.addComposerButtons = function() {
 		for (var button in customButtons) {
 			if (customButtons.hasOwnProperty(button)) {
-				$('.formatting-bar .btn-group form').before('<span class="btn btn-link" tabindex="-1"><i class="' + customButtons[button].iconClass + '"></i></span>');
+				$('.formatting-bar .btn-group .help').before('<span class="btn btn-link" tabindex="-1"><i class="' + customButtons[button].iconClass + '"></i></span>');
 			}
 		}
 	}

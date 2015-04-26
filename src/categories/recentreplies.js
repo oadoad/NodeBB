@@ -192,6 +192,64 @@ module.exports = function(Categories) {
 			});
 		});
 	}
+
+    Categories.getRecentActiveTopics = function(categoryData, uid, callback) {
+		if (!Array.isArray(categoryData) || !categoryData.length) {
+			return callback(null, []);
+		}
+
+        async.waterfall([
+			function(next) {
+				async.map(categoryData, getRecentTopicPids, next);
+			},
+			function(results, next) {
+				var pids = _.flatten(results);
+
+				pids = pids.filter(function(pid, index, array) {
+					return !!pid && array.indexOf(pid) === index;
+				});
+				privileges.posts.filter('read', pids, uid, next);
+			},
+			function(pids, next) {
+		        var fields = ['pid', 'tid', 'deleted'];
+
+		        posts.getPostsFields(pids, fields, function(err, theposts) {
+			        if (err) {
+				        return callback(err);
+			        }
+
+			        theposts = theposts.filter(function(p) {
+				        return !!p && parseInt(p.deleted, 10) !== 1;
+			        });
+
+                    var tids = [];
+			        for(var i=0; i<theposts.length; ++i) {
+				        if (tids.indexOf(theposts[i].tid) === -1) {
+					        tids.push(theposts[i].tid);
+                        }
+                    }
+                    topics.getTopicsFields(tids, ['mainPid'], function(err, topicData){
+                        if (err) {
+                            return callback(err);
+                        }
+
+                        var mainPids = topicData.map(function(topic){
+                            return topic ? topic.mainPid : null;
+                        });
+
+                        posts.getPostSummaryByPids(mainPids, uid, {stripTags: true}, next);
+                    });
+
+                });
+            },
+            function(posts, next) {
+				categoryData.forEach(function(category) {
+					assignPostsToCategory(category, posts);
+				});
+				next();
+            }
+        ], callback);
+    };
 };
 
 

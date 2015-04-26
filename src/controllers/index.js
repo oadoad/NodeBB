@@ -86,10 +86,12 @@ Controllers.home = function(req, res, next) {
 
 				async.parallel([
 					function(next) {
-						categories.getRecentTopicReplies(categoryData, uid, next);
+						//categories.getRecentTopicReplies(categoryData, uid, next);
+						categories.getRecentActiveTopics(categoryData, uid, next);
 					},
 					function(next) {
-						categories.getRecentTopicReplies(childCategories, uid, next);
+						//categories.getRecentTopicReplies(childCategories, uid, next);
+						categories.getRecentActiveTopics(childCategories, uid, next);
 					}
 				], function(err) {
 					next(err, categoryData);
