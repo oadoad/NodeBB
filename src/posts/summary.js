@@ -85,16 +85,18 @@ module.exports = function(Posts) {
 						return next(null, post);
 					}
 
-					postTools.parsePost(post, uid, function(err, post) {
-						if (err) {
-							return next(err);
-						}
-						if (options.stripTags) {
-							post.content = stripTags(post.content);
-						}
+                    postTools.parsePost(post, uid, function(err, post) {
+                        postTools.summaryPost(post, uid, function(err, post){
+                            if (err) {
+                                return next(err);
+                            }
+                            if (options.stripTags) {
+                                post.content = stripTags(post.content);
+                            }
 
-						next(null, post);
-					});
+                            next(null, post);
+                        });
+                    });
 				}, function(err, posts) {
 					plugins.fireHook('filter:post.getPostSummaryByPids', {posts: posts, uid: uid}, function(err, postData) {
 						callback(err, postData.posts);

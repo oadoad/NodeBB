@@ -177,6 +177,14 @@ var winston = require('winston'),
 		});
 	};
 
+    PostTools.summaryPost = function(postData, uid, callback) {
+		postData.content = postData.content || '';
+
+		plugins.fireHook('filter:summary.post', {postData: postData, uid: uid}, function(err, data) {
+			callback(err, data ? data.postData : null);
+		});
+    };
+
 	PostTools.parseSignature = function(userData, uid, callback) {
 		userData.signature = userData.signature || '';
 
